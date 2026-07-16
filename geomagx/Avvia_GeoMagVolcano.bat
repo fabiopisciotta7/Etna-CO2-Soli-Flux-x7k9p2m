@@ -1,29 +1,43 @@
 @echo off
-chcp 65001 >nul
-setlocal
+setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 echo ============================================================
 echo   GeoMagVolcano Monitor - avvio
 echo ============================================================
 
-where python >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [ERRORE] Python non trovato nel PATH.
-    echo Installa Python 3 da https://www.python.org/downloads/
-    echo e riprova ^(assicurati di spuntare "Add Python to PATH"^).
+set PYCMD=
+
+python --version >nul 2>nul
+if not errorlevel 1 (
+    set PYCMD=python
+) else (
+    py -3 --version >nul 2>nul
+    if not errorlevel 1 (
+        set PYCMD=py -3
+    )
+)
+
+if "%PYCMD%"=="" (
+    echo [ERRORE] Python 3 non trovato sul PC.
+    echo Installa Python da https://www.python.org/downloads/
+    echo Durante l'installazione spunta la casella "Add python.exe to PATH".
+    echo.
     pause
     exit /b 1
 )
 
+echo Interprete Python trovato: %PYCMD%
+echo.
 echo Verifica/installazione dipendenze...
-python -m pip install --quiet --disable-pip-version-check -r requirements.txt
-if %errorlevel% neq 0 (
+%PYCMD% -m pip install --quiet --disable-pip-version-check -r requirements.txt
+if errorlevel 1 (
     echo [AVVISO] Alcune dipendenze potrebbero non essersi installate correttamente.
 )
 
+echo.
 echo Avvio dell'app nel browser predefinito...
-python geomagx.py
+%PYCMD% geomagx.py
 
 echo.
 echo App terminata. Premi un tasto per chiudere questa finestra.
