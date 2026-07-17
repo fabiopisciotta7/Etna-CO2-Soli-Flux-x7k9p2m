@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import io
 import math
+import os
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Dict, Iterable, List, Optional, Tuple
@@ -3674,10 +3675,12 @@ st.caption(
 #   streamlit run geomag_app_v6.py [--server.port N] [--server.headless true]
 # =============================================================================
 
-if __name__ == "__main__":
+if __name__ == "__main__" and os.environ.get("_GEOMAG_LAUNCHED_VIA_STREAMLIT") != "1":
+    # Streamlit executes this same file with __name__ set to "__main__" too,
+    # so without the env-var guard above every relaunch would spawn another
+    # "streamlit run" subprocess that opens yet another browser tab, forever.
     import subprocess
     import sys
-    import os
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -3731,8 +3734,10 @@ if __name__ == "__main__":
         f"[GeoMagVolcano] Avvio su http://{args.host}:{args.port}\n"
         f"Premi Ctrl+C per fermare."
     )
+    _child_env = os.environ.copy()
+    _child_env["_GEOMAG_LAUNCHED_VIA_STREAMLIT"] = "1"
     try:
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True, env=_child_env)
     except KeyboardInterrupt:
         print("\n[GeoMagVolcano] Fermato.")
     except subprocess.CalledProcessError as exc:

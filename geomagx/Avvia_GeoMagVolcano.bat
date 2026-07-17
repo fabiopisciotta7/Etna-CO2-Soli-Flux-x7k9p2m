@@ -39,6 +39,14 @@ if "%PYCMD%"=="" (
 
 echo Interprete Python trovato: %PYCMD%
 echo.
+
+rem Evita che al primo avvio Streamlit resti in attesa dell'email di
+rem onboarding (il prompt "Welcome to Streamlit!" nel terminale).
+if not exist "%USERPROFILE%\.streamlit" mkdir "%USERPROFILE%\.streamlit" >nul 2>nul
+if not exist "%USERPROFILE%\.streamlit\credentials.toml" (
+    (echo [general]& echo email = "") > "%USERPROFILE%\.streamlit\credentials.toml"
+)
+
 echo Verifica/installazione dipendenze...
 %PYCMD% -m pip install --quiet --disable-pip-version-check -r requirements.txt
 if errorlevel 1 (
