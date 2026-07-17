@@ -8,20 +8,30 @@ echo ============================================================
 
 set PYCMD=
 
-python --version >nul 2>nul
+rem Preferisci il launcher "py" (installato da python.org): a differenza di
+rem "python" non viene "oscurato" da altri programmi che portano con se'
+rem un proprio python.exe senza pip (es. Inkscape, GIMP, ecc.) e che a volte
+rem finiscono prima nel PATH di sistema.
+py -3 -m pip --version >nul 2>nul
 if not errorlevel 1 (
-    set PYCMD=python
+    set PYCMD=py -3
 ) else (
-    py -3 --version >nul 2>nul
+    python -m pip --version >nul 2>nul
     if not errorlevel 1 (
-        set PYCMD=py -3
+        set PYCMD=python
     )
 )
 
 if "%PYCMD%"=="" (
-    echo [ERRORE] Python 3 non trovato sul PC.
-    echo Installa Python da https://www.python.org/downloads/
-    echo Durante l'installazione spunta la casella "Add python.exe to PATH".
+    echo [ERRORE] Non ho trovato un Python funzionante con pip.
+    echo.
+    echo Possibili cause:
+    echo  - Python non e' installato: scaricalo da https://www.python.org/downloads/
+    echo    ^(spunta "Add python.exe to PATH" durante l'installazione^)
+    echo  - Un altro programma ^(es. Inkscape, GIMP^) ha aggiunto al PATH
+    echo    un proprio python.exe senza pip, che viene trovato per primo.
+    echo    In quel caso disinstalla/reinstalla Python da python.org e
+    echo    assicurati che compaia il launcher "py".
     echo.
     pause
     exit /b 1
